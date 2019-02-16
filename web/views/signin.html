@@ -1,0 +1,15 @@
+{{ template "head" }}
+    <body>
+        <article>
+            This is a test login form.
+            <form class="signin-form" action="/gc_alert/user/signin" method="post">
+                <label>Username</label><br>
+                <input type="text" name="username"><br>
+                <label>Password</label><br>
+                <input type="password" name="password"><br>
+                <a href="/gc_alert/signup">サインアップ</a>
+                <input type="submit" value="送信">
+            </form>
+        <article>
+    </body>
+{{ template "foot" }}
