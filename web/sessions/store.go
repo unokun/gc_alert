@@ -1,40 +1,42 @@
 package sessions
 
 import (
-	"gc_alert/web/crypto"
+	"encoding/base64"
 
 	"errors"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
-type DummyStore struct {
+type Store struct {
 	database map[string]interface{}
 }
 
-var kvs DummyStore
+var kvs Store
 
 func init() {
 	kvs.database = map[string]interface{}{}
 }
 
-func NewDummyStore() *DummyStore {
+func NewStore() *Store {
 	return &kvs
 }
 
-func (s *DummyStore) NewSessionID() string {
-	return crypto.LongSecureRandomBase64()
+func (s *Store) NewSessionID() string {
+	return longSecureRandomBase64()
 }
 
-func (s *DummyStore) Exists(sessionID string) bool {
+func (s *Store) Exists(sessionID string) bool {
 	_, r := s.database[sessionID]
 	return r
 }
 
-func (s *DummyStore) Flush() {
+func (s *Store) Flush() {
 	s.database = map[string]interface{}{}
 }
 
-func (s *DummyStore) Get(r *http.Request, cookieName string) (*DummySession, error) {
+func (s *Store) Get(r *http.Request, cookieName string) (*Session, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err != nil {
 		// No cookies in the request.
@@ -48,25 +50,25 @@ func (s *DummyStore) Get(r *http.Request, cookieName string) (*DummySession, err
 		return nil, errors.New("Invalid sessionID")
 	}
 
-	session := buffer.(*DummySession)
+	session := buffer.(*Session)
 	session.request = r
 	return session, nil
 }
 
-func (s *DummyStore) New(r *http.Request, cookieName string) (*DummySession, error) {
+func (s *Store) New(r *http.Request, cookieName string) (*Session, error) {
 	cookie, err := r.Cookie(cookieName)
 	if err == nil && s.Exists(cookie.Value) {
 		return nil, errors.New("sessionID already exists")
 	}
 
-	session := NewDummySession(s, cookieName)
+	session := NewSession(s, cookieName)
 	session.ID = s.NewSessionID()
 	session.request = r
 
 	return session, nil
 }
 
-func (s *DummyStore) Save(r *http.Request, w http.ResponseWriter, session *DummySession) error {
+func (s *Store) Save(r *http.Request, w http.ResponseWriter, session *Session) error {
 	s.database[session.ID] = session
 
 	c := &http.Cookie{
@@ -79,6 +81,13 @@ func (s *DummyStore) Save(r *http.Request, w http.ResponseWriter, session *Dummy
 	return nil
 }
 
-func (s *DummyStore) Delete(sessionID string) {
+func (s *Store) Delete(sessionID string) {
 	delete(s.database, sessionID)
+}
+
+func longSecureRandomBase64() string {
+	return secureRandomBase64() + secureRandomBase64()
+}
+func secureRandomBase64() string {
+	return base64.StdEncoding.EncodeToString(uuid.New().NodeID())
 }

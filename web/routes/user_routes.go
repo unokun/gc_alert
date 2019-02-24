@@ -1,81 +1,99 @@
 package routes
 
 import (
-	"gc_alert/web/config"
 	"gc_alert/web/sessions"
 
-	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/unokun/gc_alert/model"
 )
 
+/*
+サインアップ
+*/
 func UserSignUp(ctx *gin.Context) {
 	println("post/signup")
-	username := ctx.PostForm("username")
-	email := ctx.PostForm("emailaddress")
+	username := ctx.PostForm("user_name")
+	email := ctx.PostForm("user_email")
 	password := ctx.PostForm("password")
-	passwordConf := ctx.PostForm("passwordconfirmation")
+	passwordConf := ctx.PostForm("password_confirm")
 
 	if password != passwordConf {
-		println("Error: password and passwordConf not match")
-		ctx.Redirect(http.StatusSeeOther, "/")
+		println("Error: password and password_confirm not match")
+		ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 		return
 	}
 
-	db := config.DummyDB()
-	if err := db.SaveUser(username, email, password); err != nil {
-		println("Error: " + err.Error())
-		ctx.Redirect(http.StatusSeeOther, "/")
-		return
+	// ユーザー登録
+	user := &model.User{
+		Name:     username,
+		Email:    email,
+		Password: password,
 	}
 
-	println("Signup success!!")
-	println("  username: " + username)
-	println("  email: " + email)
-	println("  password: " + password)
-	user, err := db.GetUser(username, password)
+	err := model.CreateUser(user)
 	if err != nil {
-		println("Error: while loading user: " + err.Error())
-		ctx.Redirect(http.StatusSeeOther, "/")
+		log.Fatal(err)
+		ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
+		return
+	}
+
+	log.Println("Signup success!!")
+	log.Println("  username: " + username)
+	log.Println("  email: " + email)
+	log.Println("  password: " + password)
+
+	created, err := model.FindUserByEmail(user.Email)
+	if err != nil {
+		log.Fatal(err)
+		ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 		return
 	}
 
 	session := sessions.GetDefaultSession(ctx)
-	session.Set("user", user)
+	session.Set("user", created)
 	session.Save()
 	println("Session saved.")
 	println("  sessionID: " + session.ID)
-	ctx.Redirect(http.StatusSeeOther, "/")
+	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 }
 
+/*
+サインイン
+*/
 func UserSignIn(ctx *gin.Context) {
 	println("post/signin")
-	username := ctx.PostForm("username")
-	password := ctx.PostForm("password")
+	email := ctx.PostForm("user_email")
+	//password := ctx.PostForm("password")
 
-	db := config.DummyDB()
-	user, err := db.GetUser(username, password)
+	user, err := model.FindUserByEmail(email)
 	if err != nil {
 		println("Error: " + err.Error())
-		ctx.Redirect(http.StatusSeeOther, "/")
+		ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 		return
 	}
 
 	println("Authentication Success!!")
-	println("  username: " + user.Username)
+	println("  username: " + user.Name)
 	println("  email: " + user.Email)
 	println("  password: " + user.Password)
 	session := sessions.GetDefaultSession(ctx)
 	session.Set("user", user)
 	session.Save()
-	user.Authenticate()
+	model.UserAuthenticate(user)
 
 	println("Session saved.")
 	println("  sessionID: " + session.ID)
-	ctx.Redirect(http.StatusSeeOther, "/")
+	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 }
 
+/*
+ログアウト
+*/
 func UserLogOut(ctx *gin.Context) {
 	session := sessions.GetDefaultSession(ctx)
 	session.Terminate()
-	ctx.Redirect(http.StatusSeeOther, "/")
+	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 }

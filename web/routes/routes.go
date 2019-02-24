@@ -1,15 +1,16 @@
 package routes
 
 import (
-	"gc_alert/web/config"
 	"gc_alert/web/sessions"
 
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/unokun/gc_alert/model"
 )
 
 func Home(ctx *gin.Context) {
-	var user *config.DummyUserModel
+	var user *model.User
 
 	session := sessions.GetDefaultSession(ctx)
 	buffer, exists := session.Get("user")
@@ -21,16 +22,16 @@ func Home(ctx *gin.Context) {
 		return
 	}
 
-	user = buffer.(*config.DummyUserModel)
+	user = buffer.(*model.User)
 	println("Home sweet home")
 	println("  sessionID: " + session.ID)
-	println("  username: " + user.Username)
+	println("  username: " + user.Name)
 	println("  email: " + user.Email)
 
 	session.Save()
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
 		"isSignIn": exists,
-		"username": user.Username,
+		"username": user.Name,
 		"email":    user.Email,
 	})
 }

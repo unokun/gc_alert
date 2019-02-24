@@ -1,15 +1,23 @@
 {{ template "head" }}
-    <body>
-        <article>
-            This is a test login form.
+  <body>
+    <div class="sign_up">
+      <div class="contents">
+        <div class="sign_up_form">
+          <h1>ゴミ出し通知サービス</h1>
             <form class="signin-form" action="/gc_alert/user/signin" method="post">
-                <label>Username</label><br>
-                <input type="text" name="username"><br>
-                <label>Password</label><br>
-                <input type="password" name="password"><br>
-                <a href="/gc_alert/signup">サインアップ</a>
-                <input type="submit" value="送信">
-            </form>
-        <article>
-    </body>
+             <div class="field">
+               <input type="email" name="user_email" placeholder="メールアドレス">
+             </div>
+             <div class="field">
+               <input type="password" name="password" placeholder="パスワード">
+             </div>
+             <button>サインインする</button>
+           </form>
+         </div>
+         <div class="sign_up_link">
+           <p>アカウントをお持ちですか？ <a href="/gc_alert/signup">新規登録する</a></p>
+         </div>
+       </div>
+    </div>
+  </body>
 {{ template "foot" }}

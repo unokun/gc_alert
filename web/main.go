@@ -12,13 +12,13 @@ func main() {
 	router.LoadHTMLGlob("views/*.html")
 	router.Static("/gc_alert/assets", "./assets")
 
-	store := sessions.NewDummyStore()
+	store := sessions.NewStore()
 	router.Use(sessions.StartDefaultSession(store))
 
 	user := router.Group("/gc_alert/user")
 	{
-		user.POST("/gc_alert/signup", routes.UserSignUp)
-		user.POST("/gc_alert/signin", routes.UserSignIn)
+		user.POST("/signup", routes.UserSignUp)
+		user.POST("/signin", routes.UserSignIn)
 	}
 
 	router.GET("/gc_alert/", routes.Home)

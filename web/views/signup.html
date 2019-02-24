@@ -1,19 +1,29 @@
 {{ template "head" }}
-    <body>
-        <article>
-            This is a test signup form.
-            <form class="signup-form" action="//localhost:8080/user/signup" method="post">
-                <label>Username</label><br>
-                <input type="text" name="username"><br>
-                <label>E-mail</label><br>
-                <input type="text" name="emailaddress"><br>
-                <label>Password</label><br>
-                <input type="password" name="password"><br>
-                <label>Password Confirmation</label><br>
-                <input type="password" name="passwordconfirmation"><br>
-                <label>または</label><a href="//localhost:8080/login">ログイン</a>
-                <input type="submit" value="送信">
-            </form>
-        </article>
-    </body>
+<body>
+  <div class="sign_up">
+    <div class="contents">
+      <div class="sign_up_form">
+        <h1>ユーザー登録</h1>
+        <form method="post" action="/gc_alert/user/signup">
+          <div class="field">
+            <input type="text" name="user_name" placeholder="ユーザーネーム">
+          </div>
+          <div class="field">
+            <input type="email" name="user_email" placeholder="メールアドレス">
+          </div>
+          <div class="field">
+            <input type="password" name="password" placeholder="パスワード">
+          </div>
+          <div class="field">
+            <input type="password" name="password_confirm" placeholder="パスワード(確認)">
+          </div>
+          <button>登録する</button>
+        </form>
+      </div>
+      <div class="sign_up_link">
+        <p>アカウントをお持ちですか？ <a href="/gc_alert/signin">サインインする</a></p>
+      </div>
+    </div>
+  </div>
+</body>
 {{ template "foot" }}
