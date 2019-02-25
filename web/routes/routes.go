@@ -30,9 +30,10 @@ func Home(ctx *gin.Context) {
 
 	session.Save()
 	ctx.HTML(http.StatusOK, "index.html", gin.H{
-		"isSignIn": exists,
-		"username": user.Name,
-		"email":    user.Email,
+		"isSignIn":   exists,
+		"username":   user.Name,
+		"email":      user.Email,
+		"isTrashFlg": user.TrashFlg == "1",
 	})
 }
 

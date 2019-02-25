@@ -1,7 +1,9 @@
 package routes
 
 import (
+	"bytes"
 	"gc_alert/web/sessions"
+	"strings"
 
 	"log"
 	"net/http"
@@ -9,6 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/unokun/gc_alert/model"
 )
+
+type ACCESS_TOKEN struct {
+	AccessToken string `form:"access_token" json:"access_token" binding:"required"`
+}
 
 /*
 サインアップ
@@ -96,4 +102,133 @@ func UserLogOut(ctx *gin.Context) {
 	session := sessions.GetDefaultSession(ctx)
 	session.Terminate()
 	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
+}
+
+func UserRegisterTrashNotify(ctx *gin.Context) {
+
+	session := sessions.GetDefaultSession(ctx)
+	buffer, exists := session.Get("user")
+	if !exists {
+		println("Unhappy home")
+		println("  sessionID: " + session.ID)
+		session.Save()
+		ctx.HTML(http.StatusOK, "index.html", gin.H{})
+		return
+	}
+
+	var user *model.User
+	user = buffer.(*model.User)
+
+	requestAuthorize(user.ID)
+
+	session.Save()
+	ctx.HTML(http.StatusOK, "index.html", gin.H{
+		"isSignIn":   exists,
+		"username":   user.Name,
+		"email":      user.Email,
+		"isTrashFlg": user.TrashFlg == "1",
+	})
+}
+
+/*
+Line Authorizeリクエストのコールバック
+*/
+func UserLineAuthorizeCallback(ctx *gin.Context) {
+	code := ctx.PostForm("code")
+	//state := ctx.PostForm("state")
+	// [TODO]セッションIDからトークンを作成し改ざんされていないことを確認する
+
+	println("code = " + code)
+
+	// requestGetAccessToken(code)
+}
+
+func UserLineTokenCallback(ctx *gin.Context) {
+	session := sessions.GetDefaultSession(ctx)
+	buffer, exists := session.Get("user")
+	if !exists {
+		println("Unhappy home")
+		println("  sessionID: " + session.ID)
+		session.Save()
+		ctx.HTML(http.StatusOK, "index.html", gin.H{})
+		return
+	}
+
+	var user *model.User
+	user = buffer.(*model.User)
+
+	println("session id = " + session.ID)
+	println("user id = " + string(user.ID))
+
+	session.Save()
+
+	var json ACCESS_TOKEN
+	if ctx.BindJSON(&json) == nil {
+		println("access_token = " + json.AccessToken)
+
+		// DB更新
+	}
+}
+
+/*
+AUTHORIZEをリクエストします。
+*/
+func requestAuthorize(userID string) error {
+
+	// CSRF 攻撃に対応するためのsessionIDを元にトークンを作成
+	//h := sha1.New()
+	//hash := hex.EncodeToString(h.Sum([]byte(sessionID)))
+
+	var builder strings.Builder
+	builder.WriteString("https: //notify-bot.line.me/oauth/authorize?")
+	builder.WriteString("response_type=code&")
+	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
+	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&")
+	builder.WriteString("scope=notify&")
+	builder.WriteString("state=" + userID + "&")
+	builder.WriteString("response_mode=form_post")
+	url := builder.String()
+
+	client := &http.Client{}
+	resp, err := client.Get(url)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	return err
+}
+
+/*
+ACCESS_TOKEN取得をリクエストします
+*/
+func requestGetAccessToken(code string) error {
+	var url = "https://notify-bot.line.me/oauth/token"
+
+	var builder strings.Builder
+	builder.WriteString("grant_type=authorization_code&")
+	builder.WriteString("code=" + code + "&")
+	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/token&")
+	builder.WriteString("client_secret=XuMKCv7Y0zFxGvUmrkoj03h6GQuRt1m34fPOTun5EEC")
+	content := builder.String()
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(content)))
+	if err != nil {
+		return err
+	}
+
+	// Content-Type 設定
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	return err
 }

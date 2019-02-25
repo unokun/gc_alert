@@ -19,6 +19,13 @@ func main() {
 	{
 		user.POST("/signup", routes.UserSignUp)
 		user.POST("/signin", routes.UserSignIn)
+		user.POST("/register_trashnotify", routes.UserRegisterTrashNotify)
+	}
+
+	user = router.Group("/gc_alert/callback")
+	{
+		user.POST("/authorize", routes.UserLineAuthorizeCallback)
+		user.POST("/token", routes.UserLineTokenCallback)
 	}
 
 	router.GET("/gc_alert/", routes.Home)

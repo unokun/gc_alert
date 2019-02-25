@@ -1,8 +1,21 @@
 {{ template "head" }}
 {{ if .isSignIn }}
     <body>
-        <h1>Welcome home {{ .username }}.</h1>
-        <h2>Your Email address is {{ .email }}</h2>
+        <h1>{{ .username }} さん</h1>
+        <h2i>通知一覧</h2>
+        <table>
+            <tr><th>通知</th><th>登録解除</th></tr>
+            <tr><td>ゴミ収集日</th>
+                <th>
+                    <form action="/gc_alert/user/register_trashnotify">
+                        <button>
+                            {{ if .isTrashFlg }}解除
+                            {{ else }}登録
+                            {{ end }}
+                        </button> 
+                    </form>
+                </th></tr>
+        </table>
         <form id="signout-form" action="/gc_alert/user/logout" method="POST">
             <input type="submit" value="ログアウト">
         </form>
