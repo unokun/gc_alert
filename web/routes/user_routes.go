@@ -173,7 +173,7 @@ func UserLineTokenCallback(ctx *gin.Context) {
 /*
 AUTHORIZEをリクエストします。
 */
-func requestAuthorize(userID string) error {
+func requestAuthorize(userID int) error {
 
 	// CSRF 攻撃に対応するためのsessionIDを元にトークンを作成
 	//h := sha1.New()
@@ -185,7 +185,7 @@ func requestAuthorize(userID string) error {
 	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
 	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&")
 	builder.WriteString("scope=notify&")
-	builder.WriteString("state=" + userID + "&")
+	builder.WriteString("state=" + string(userID) + "&")
 	builder.WriteString("response_mode=form_post")
 	url := builder.String()
 
