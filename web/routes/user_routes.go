@@ -104,6 +104,8 @@ func UserLogOut(ctx *gin.Context) {
 	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 }
 
+/*
+ */
 func UserRegisterTrashNotify(ctx *gin.Context) {
 
 	session := sessions.GetDefaultSession(ctx)
@@ -180,7 +182,7 @@ func requestAuthorize(userID int) error {
 	//hash := hex.EncodeToString(h.Sum([]byte(sessionID)))
 
 	var builder strings.Builder
-	builder.WriteString("https: //notify-bot.line.me/oauth/authorize?")
+	builder.WriteString("https://notify-bot.line.me/oauth/authorize?")
 	builder.WriteString("response_type=code&")
 	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
 	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&")

@@ -7,7 +7,7 @@
             <tr><th>通知</th><th>登録解除</th></tr>
             <tr><td>ゴミ収集日</th>
                 <th>
-                    <form action="/gc_alert/user/register_trashnotify">
+                    <form action="/gc_alert/user/register_trashnotify" method="post">
                         <button>
                             {{ if .isTrashFlg }}解除
                             {{ else }}登録
