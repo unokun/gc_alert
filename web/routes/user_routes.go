@@ -158,39 +158,61 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 	code := ctx.PostForm("code")
 	//state := ctx.PostForm("state")
 	// [TODO]セッションIDからトークンを作成し改ざんされていないことを確認する
+	session := sessions.GetDefaultSession(ctx)
+	_, exists := session.Get("user")
+	if exists {
+		println("sesseion user exists")
+	} else {
+		println("sesseion user not exitst")
+	}
 
 	println("code = " + code)
 
-	// requestGetAccessToken(code)
+	requestGetAccessToken(code)
 }
 
 /*
  */
 func UserLineTokenCallback(ctx *gin.Context) {
 	session := sessions.GetDefaultSession(ctx)
-	buffer, exists := session.Get("user")
-	if !exists {
-		println("Unhappy home")
-		println("  sessionID: " + session.ID)
-		session.Save()
-		ctx.HTML(http.StatusOK, "index.html", gin.H{})
-		return
+	_, exists := session.Get("user")
+	if exists {
+		println("sesseion user exists")
+	} else {
+		println("sesseion user not exitst")
 	}
-
-	var user *model.User
-	user = buffer.(*model.User)
-
-	println("session id = " + session.ID)
-	println("user id = " + string(user.ID))
-
-	session.Save()
-
 	var json ACCESS_TOKEN
 	if ctx.BindJSON(&json) == nil {
 		println("access_token = " + json.AccessToken)
 
 		// DB更新
 	}
+	/*
+		session := sessions.GetDefaultSession(ctx)
+		buffer, exists := session.Get("user")
+		if !exists {
+			println("Unhappy home")
+			println("  sessionID: " + session.ID)
+			session.Save()
+			ctx.HTML(http.StatusOK, "index.html", gin.H{})
+			return
+		}
+
+		var user *model.User
+		user = buffer.(*model.User)
+
+		println("session id = " + session.ID)
+		println("user id = " + string(user.ID))
+
+		session.Save()
+
+		var json ACCESS_TOKEN
+		if ctx.BindJSON(&json) == nil {
+			println("access_token = " + json.AccessToken)
+
+			// DB更新
+		}
+	*/
 }
 
 /*
