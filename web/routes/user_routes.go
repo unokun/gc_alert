@@ -169,6 +169,7 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 	println("code = " + code)
 
 	requestGetAccessToken(code)
+
 }
 
 /*
@@ -225,6 +226,7 @@ func requestGetAccessToken(code string) error {
 	builder.WriteString("grant_type=authorization_code&")
 	builder.WriteString("code=" + code + "&")
 	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/token&")
+	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
 	builder.WriteString("client_secret=XuMKCv7Y0zFxGvUmrkoj03h6GQuRt1m34fPOTun5EEC")
 	content := builder.String()
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(content)))
