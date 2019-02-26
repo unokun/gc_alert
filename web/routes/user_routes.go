@@ -121,15 +121,34 @@ func UserRegisterTrashNotify(ctx *gin.Context) {
 	var user *model.User
 	user = buffer.(*model.User)
 
-	requestAuthorize(user.ID)
+	url := createRequestAuthorizeURL(user.ID)
+	println("redirect to: " + url)
 
 	session.Save()
-	ctx.HTML(http.StatusOK, "index.html", gin.H{
-		"isSignIn":   exists,
-		"username":   user.Name,
-		"email":      user.Email,
-		"isTrashFlg": user.TrashFlg == "1",
-	})
+
+	ctx.Redirect(http.StatusSeeOther, url)
+
+}
+
+/*
+Authorize Request URLを作成する。
+*/
+func createRequestAuthorizeURL(userID int) string {
+
+	// CSRF 攻撃に対応するためのsessionIDを元にトークンを作成
+	//h := sha1.New()
+	//hash := hex.EncodeToString(h.Sum([]byte(sessionID)))
+
+	var builder strings.Builder
+	builder.WriteString("https://notify-bot.line.me/oauth/authorize?")
+	builder.WriteString("response_type=code&")
+	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
+	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&")
+	builder.WriteString("scope=notify&")
+	builder.WriteString("state=" + string(userID) + "&")
+	builder.WriteString("response_mode=form_post")
+	return builder.String()
+
 }
 
 /*
@@ -145,6 +164,8 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 	// requestGetAccessToken(code)
 }
 
+/*
+ */
 func UserLineTokenCallback(ctx *gin.Context) {
 	session := sessions.GetDefaultSession(ctx)
 	buffer, exists := session.Get("user")
@@ -170,37 +191,6 @@ func UserLineTokenCallback(ctx *gin.Context) {
 
 		// DB更新
 	}
-}
-
-/*
-AUTHORIZEをリクエストします。
-*/
-func requestAuthorize(userID int) error {
-
-	// CSRF 攻撃に対応するためのsessionIDを元にトークンを作成
-	//h := sha1.New()
-	//hash := hex.EncodeToString(h.Sum([]byte(sessionID)))
-
-	var builder strings.Builder
-	builder.WriteString("https://notify-bot.line.me/oauth/authorize?")
-	builder.WriteString("response_type=code&")
-	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
-	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&")
-	builder.WriteString("scope=notify&")
-	builder.WriteString("state=" + string(userID) + "&")
-	builder.WriteString("response_mode=form_post")
-	url := builder.String()
-
-	client := &http.Client{}
-	resp, err := client.Get(url)
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	return err
 }
 
 /*
