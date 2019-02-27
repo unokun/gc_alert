@@ -7,6 +7,7 @@
             <tr><th>通知</th><th>登録解除</th></tr>
             <tr><td>ゴミ収集日</th>
                 <th>
+                        <a href="https://notify-bot.line.me/oauth/authorize?response_type=code&client_id=fmvHNOiimeuehStxOKXsVA&redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&scope=notify&state=aaa&response_mode=form_post">登録</a>
                     <form action="/gc_alert/user/register_trashnotify" method="post">
                         <button>
                             {{ if .isTrashFlg }}解除

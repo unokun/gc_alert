@@ -240,7 +240,8 @@ func requestGetAccessToken(code string) error {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		println("err: " + err.Error())
+		//log.Fatal(err)
 		return err
 	}
 
