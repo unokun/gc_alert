@@ -14,10 +14,10 @@ import (
 	"github.com/unokun/gc_alert/model"
 )
 
-type ACCESS_TOKEN struct {
-	Status      string `json:"status"`
-	Message     string `json:"message"`
-	AccessToken string `json:"access_token"`
+/*
+ */
+type AccessToken struct {
+	token string `json:"access_token"`
 }
 
 /*
@@ -226,16 +226,16 @@ func requestGetAccessToken(userID int, code string) error {
 	if resp.StatusCode == 200 {
 		decoder := json.NewDecoder(resp.Body)
 
-		token := ACCESS_TOKEN{}
-		err := decoder.Decode(&token)
+		at := AccessToken{}
+		err := decoder.Decode(&at)
 		if err != nil {
 			println("err: " + err.Error())
 			log.Fatal(err)
 		}
-		println("access_token: " + token.AccessToken)
+		println("access_token: " + at.token)
 
 		// DB登録
-		model.UpdateAccessToken(userID, token.AccessToken)
+		model.UpdateAccessToken(userID, at.token)
 	}
 	return err
 }
