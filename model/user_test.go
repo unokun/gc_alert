@@ -80,3 +80,10 @@ func TestCreateUser(t *testing.T) {
 		t.Fatalf("failed test %#v", err)
 	}
 }
+
+func TestUpdateUser(t *testing.T) {
+	err := UpdateAccessToken(13, "WgNmT9QwcnIohbHTDwGDhNr0AQrY3IAtmErzSLXhyxW")
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+}

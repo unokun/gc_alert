@@ -161,8 +161,6 @@ Line Authorizeリクエストのコールバック
 func UserLineAuthorizeCallback(ctx *gin.Context) {
 	code := ctx.PostForm("code")
 	println("code = " + code)
-	//state := ctx.PostForm("state")
-	//println("state = " + state)
 	error := ctx.PostForm("error")
 	println("error = " + error)
 	errorDescription := ctx.PostForm("error_description")
@@ -170,14 +168,17 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 
 	// [TODO]セッションIDからトークンを作成し改ざんされていないことを確認する
 	session := sessions.GetDefaultSession(ctx)
-	_, exists := session.Get("user")
+	buffer, exists := session.Get("user")
 	if exists {
 		println("sesseion user exists")
 	} else {
 		println("sesseion user not exitst")
 	}
 
-	requestGetAccessToken(code)
+	var user *model.User
+	user = buffer.(*model.User)
+
+	requestGetAccessToken(user.ID, code)
 
 	session.Save()
 	println("Session saved.")
@@ -188,7 +189,7 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 /*
 ACCESS_TOKEN取得をリクエストします
 */
-func requestGetAccessToken(code string) error {
+func requestGetAccessToken(userID int, code string) error {
 	var apiurl = "https://notify-bot.line.me/oauth/token"
 
 	values := url.Values{}
@@ -220,9 +221,7 @@ func requestGetAccessToken(code string) error {
 	defer resp.Body.Close()
 	dump, err = httputil.DumpResponse(resp, true)
 	println(string(dump))
-
 	println("status: " + resp.Status)
-	println("statusCode: " + string(resp.StatusCode))
 
 	if resp.StatusCode == 200 {
 		decoder := json.NewDecoder(resp.Body)
@@ -233,11 +232,10 @@ func requestGetAccessToken(code string) error {
 			println("err: " + err.Error())
 			log.Fatal(err)
 		}
-		println("status: " + token.Status)
-		println("message: " + token.Message)
 		println("access_token: " + token.AccessToken)
 
 		// DB登録
+		model.UpdateAccessToken(userID, token.AccessToken)
 	}
 	return err
 }
