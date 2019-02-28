@@ -1,19 +1,15 @@
 package routes
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 	"testing"
 )
-
-func TestRequestGetAccessToken(t *testing.T) {
-	err := requestGetAccessToken("eq8MhR9x3rvF8vZkypqgn5")
-	if err != nil {
-		t.Fatalf("failed test %#v", err)
-	}
-}
 
 func TestHttpPost(t *testing.T) {
 	var apiurl = "https://notify-bot.line.me/oauth/token"
@@ -38,4 +34,20 @@ func TestHttpPost(t *testing.T) {
 
 	dump, err := httputil.DumpRequest(req, true)
 	println(string(dump))
+}
+
+func TestParseAccessToken(t *testing.T) {
+	body := `{"status":200,"message":"access_token is issued","access_token":"HVet4KBcnLCTDkrJh2wKLtfDpdgKLUVDqv3TbuilCWG"}`
+	decoder := json.NewDecoder(bytes.NewBuffer([]byte(body)))
+
+	token := AccessToken{}
+	err := decoder.Decode(&token)
+	if err != nil {
+		println("err: " + err.Error())
+		log.Fatal(err)
+	}
+	if len(token.Token) == 0 {
+		log.Fatal("Parse access token failed.")
+	}
+	//println("access_token: " + token.Token)
 }
