@@ -7,6 +7,7 @@ import (
 
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
@@ -205,6 +206,9 @@ func requestGetAccessToken(code string) error {
 	// Content-Type 設定
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
+	dump, err := httputil.DumpRequest(req, true)
+	println(string(dump))
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -215,6 +219,9 @@ func requestGetAccessToken(code string) error {
 
 	defer resp.Body.Close()
 	println("status: " + resp.Status)
+
+	dump, err = httputil.DumpResponse(resp, true)
+	println(string(dump))
 
 	if resp.Status == "200" {
 		decoder := json.NewDecoder(resp.Body)
