@@ -1,19 +1,22 @@
 package routes
 
 import (
-	"bytes"
+	"encoding/json"
 	"gc_alert/web/sessions"
 	"strings"
 
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 	"github.com/unokun/gc_alert/model"
 )
 
 type ACCESS_TOKEN struct {
-	AccessToken string `form:"access_token" json:"access_token" binding:"required"`
+	Status      string `json:"status"`
+	Message     string `json:"message"`
+	AccessToken string `json:"access_token"`
 }
 
 /*
@@ -156,7 +159,14 @@ Line Authorizeリクエストのコールバック
 */
 func UserLineAuthorizeCallback(ctx *gin.Context) {
 	code := ctx.PostForm("code")
+	println("code = " + code)
 	//state := ctx.PostForm("state")
+	//println("state = " + state)
+	error := ctx.PostForm("error")
+	println("error = " + error)
+	errorDescription := ctx.PostForm("error_description")
+	println("error_description = " + errorDescription)
+
 	// [TODO]セッションIDからトークンを作成し改ざんされていないことを確認する
 	session := sessions.GetDefaultSession(ctx)
 	_, exists := session.Get("user")
@@ -166,70 +176,28 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 		println("sesseion user not exitst")
 	}
 
-	println("code = " + code)
-
 	requestGetAccessToken(code)
 
-}
-
-/*
- */
-func UserLineTokenCallback(ctx *gin.Context) {
-	session := sessions.GetDefaultSession(ctx)
-	_, exists := session.Get("user")
-	if exists {
-		println("sesseion user exists")
-	} else {
-		println("sesseion user not exitst")
-	}
-	var json ACCESS_TOKEN
-	if ctx.BindJSON(&json) == nil {
-		println("access_token = " + json.AccessToken)
-
-		// DB更新
-	}
-	/*
-		session := sessions.GetDefaultSession(ctx)
-		buffer, exists := session.Get("user")
-		if !exists {
-			println("Unhappy home")
-			println("  sessionID: " + session.ID)
-			session.Save()
-			ctx.HTML(http.StatusOK, "index.html", gin.H{})
-			return
-		}
-
-		var user *model.User
-		user = buffer.(*model.User)
-
-		println("session id = " + session.ID)
-		println("user id = " + string(user.ID))
-
-		session.Save()
-
-		var json ACCESS_TOKEN
-		if ctx.BindJSON(&json) == nil {
-			println("access_token = " + json.AccessToken)
-
-			// DB更新
-		}
-	*/
+	session.Save()
+	println("Session saved.")
+	println("  sessionID: " + session.ID)
+	ctx.Redirect(http.StatusSeeOther, "/gc_alert/")
 }
 
 /*
 ACCESS_TOKEN取得をリクエストします
 */
 func requestGetAccessToken(code string) error {
-	var url = "https://notify-bot.line.me/oauth/token"
+	var apiurl = "https://notify-bot.line.me/oauth/token"
 
-	var builder strings.Builder
-	builder.WriteString("grant_type=authorization_code&")
-	builder.WriteString("code=" + code + "&")
-	builder.WriteString("redirect_uri=https://smaphonia.jp/gc_alert/callback/token&")
-	builder.WriteString("client_id=fmvHNOiimeuehStxOKXsVA&")
-	builder.WriteString("client_secret=XuMKCv7Y0zFxGvUmrkoj03h6GQuRt1m34fPOTun5EEC")
-	content := builder.String()
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(content)))
+	values := url.Values{}
+	values.Add("grant_type", "authorization_code")
+	values.Add("code", code)
+	values.Add("redirect_uri", "https://smaphonia.jp/gc_alert/callback/authorize")
+	values.Add("client_id", "fmvHNOiimeuehStxOKXsVA")
+	values.Add("client_secret", "XuMKCv7Y0zFxGvUmrkoj03h6GQuRt1m34fPOTun5EEC")
+
+	req, err := http.NewRequest("POST", apiurl, strings.NewReader(values.Encode()))
 	if err != nil {
 		return err
 	}
@@ -246,6 +214,22 @@ func requestGetAccessToken(code string) error {
 	}
 
 	defer resp.Body.Close()
+	println("status: " + resp.Status)
 
+	if resp.Status == "200" {
+		decoder := json.NewDecoder(resp.Body)
+
+		token := ACCESS_TOKEN{}
+		err := decoder.Decode(&token)
+		if err != nil {
+			println("err: " + err.Error())
+			log.Fatal(err)
+		}
+		println("status: " + token.Status)
+		println("message: " + token.Message)
+		println("access_token: " + token.AccessToken)
+
+		// DB登録
+	}
 	return err
 }
