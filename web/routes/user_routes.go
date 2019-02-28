@@ -218,11 +218,11 @@ func requestGetAccessToken(code string) error {
 	}
 
 	defer resp.Body.Close()
-	println("status: " + resp.Status)
-	println("statusCode: " + string(resp.StatusCode)
-
 	dump, err = httputil.DumpResponse(resp, true)
 	println(string(dump))
+
+	println("status: " + resp.Status)
+	println("statusCode: " + string(resp.StatusCode))
 
 	if resp.StatusCode == 200 {
 		decoder := json.NewDecoder(resp.Body)
