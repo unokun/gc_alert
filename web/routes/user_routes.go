@@ -17,7 +17,9 @@ import (
 /*
  */
 type AccessToken struct {
-	token string `json:"access_token"`
+	status      int    `json:"status"`
+	message     string `json:"message"`
+	accessToken string `json:"access_token"`
 }
 
 /*
@@ -226,16 +228,16 @@ func requestGetAccessToken(userID int, code string) error {
 	if resp.StatusCode == 200 {
 		decoder := json.NewDecoder(resp.Body)
 
-		at := AccessToken{}
-		err := decoder.Decode(&at)
+		token := AccessToken{}
+		err := decoder.Decode(&token)
 		if err != nil {
 			println("err: " + err.Error())
 			log.Fatal(err)
 		}
-		println("access_token: " + at.token)
+		println("access_token: " + token.accessToken)
 
 		// DB登録
-		model.UpdateAccessToken(userID, at.token)
+		model.UpdateAccessToken(userID, token.accessToken)
 	}
 	return err
 }
