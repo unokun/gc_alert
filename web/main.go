@@ -19,17 +19,20 @@ func main() {
 	{
 		user.POST("/signup", routes.UserSignUp)
 		user.POST("/signin", routes.UserSignIn)
-		user.POST("/register_trashnotify", routes.UserRegisterTrashNotify)
+		user.GET("/logout", routes.UserLogOut)
 	}
 
-	user = router.Group("/gc_alert/callback")
+	ｃallbak := router.Group("/gc_alert/callback")
 	{
-		user.POST("/authorize", routes.UserLineAuthorizeCallback)
+		ｃallbak.POST("/authorize", routes.UserLineAuthorizeCallback)
 	}
 
 	router.GET("/gc_alert/", routes.Home)
 	router.GET("/gc_alert/signin", routes.SignIn)
 	router.GET("/gc_alert/signup", routes.SignUp)
+
+	router.GET("/gc_alert/area_search", routes.AreaSearch)
+
 	router.NoRoute(routes.NoRoute)
 
 	router.Run(":9010")

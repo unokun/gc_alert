@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/unokun/gc_alert/db"
 	"golang.org/x/crypto/bcrypt"
@@ -19,6 +20,8 @@ type User struct {
 	AreaID        int    `json:"area_id"`
 	TrashFlg      string `json:"trash_flg"`
 	authenticated bool
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 /*
@@ -115,7 +118,6 @@ func CreateUser(user *User) error {
 		panic(err.Error())
 	}
 	user.Password = passwordEnc
-
 	result := db.Create(user)
 	if err != nil {
 		panic(err.Error())

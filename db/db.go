@@ -18,7 +18,7 @@ func Connect() (*gorm.DB, error) {
 	DBNAME := "notifydb"
 	PROTOCOL := "tcp(localhost:3306)"
 
-	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME
+	CONNECT := USER + ":" + PASS + "@" + PROTOCOL + "/" + DBNAME + "?parseTime=true&loc=Asia%2FTokyo"
 	db, err := gorm.Open(DBMS, CONNECT)
 
 	if err != nil {

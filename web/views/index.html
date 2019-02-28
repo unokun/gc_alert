@@ -2,31 +2,36 @@
 {{ if .isSignIn }}
     <body>
         <h1>{{ .username }} さん</h1>
-        <h2i>通知一覧</h2>
-        <table>
-            <tr><th>通知</th><th>登録解除</th></tr>
-            <tr><td>ゴミ収集日</th>
-                <th>
-                    <a href="https://notify-bot.line.me/oauth/authorize?response_type=code&client_id=fmvHNOiimeuehStxOKXsVA&redirect_uri=https://smaphonia.jp/gc_alert/callback/authorize&scope=notify&state=aaa&response_mode=form_post">登録</a>
-                    <form action="/gc_alert/user/register_trashnotify" method="post">
-                        <button>
-                            {{ if .isTrashFlg }}解除
-                            {{ else }}登録
-                            {{ end }}
-                        </button> 
-                    </form>
-                </th></tr>
-        </table>
-        <form id="signout-form" action="/gc_alert/user/logout" method="POST">
-            <input type="submit" value="ログアウト">
-        </form>
+        <h2>ゴミ収集日通知サービス</h2>
+        {{ if .isTrashFlg }}
+        <p>利用中です。</p>
+        {{ else }}
+        <h3>ステップ1. ゴミ収集日通知サービス</h3>
+        <p>
+            ゴミ収集日の通知はLINE通知を使って行います。以下の「登録」ボタンを押下してLINE通知登録をお願いします。
+        </p>
+        <a href="{{.lineNotifyURL}}">登録</a>
+        {{ end }}
+        <h3>ステップ2. 地域登録</h3>
+        地域の登録
+        <form action="" method="post">
+            都道府県：<select name="pref_id">
+            </select>
+            市：<select name="city_id">
+            </select>
+            町：<select name="town_id">
+            </select>
+            <button type="submit">送信</button>
+            </form>
+        <br/>
+        <a href="/gc_alert/user/logout">ログアウト</a>
     </body>
 {{ else }}
     <body>
         <h1>Welcome to GC_Alert.</h1>
         <ul>
-            <li><a href="/gc_alert/signin">signin</a>
-            <li><a href="/gc_alert/signup">signup</a>
+            <li><a href="/gc_alert/signin">ログイン</a>
+            <li><a href="/gc_alert/signup">ユーザー新規登録</a>
         </ul>
     </body>
 {{ end }}

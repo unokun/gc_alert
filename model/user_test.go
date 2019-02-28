@@ -53,8 +53,8 @@ func TestFindUserByEmailAndPassword(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	user := User{
-		Name:     "hoge3",
-		Email:    "hoge3@test.jp",
+		Name:     "hoge4",
+		Email:    "hoge4@test.jp",
 		Password: "hoge1234",
 		AreaID:   1,
 		TrashFlg: "1",
