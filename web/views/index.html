@@ -6,23 +6,18 @@
         {{ if .isTrashFlg }}
         <p>利用中です。</p>
         {{ else }}
-        <h3>ステップ1. ゴミ収集日通知サービス</h3>
+        <p>ゴミ収集日通知サービス</p>
+        <h3>ステップ1. 地域登録</h3>
+        <p>登録する地域を検索します。</p>
+        郵便番号：<input name="zip_cd" id="zip_cd"><button onclick="searchArea();">検索</button>
+        <p id="area"></p>
+        <h3>ステップ2. LINE登録</h3>
         <p>
             ゴミ収集日の通知はLINE通知を使って行います。以下の「登録」ボタンを押下してLINE通知登録をお願いします。
         </p>
-        <a href="{{.lineNotifyURL}}">登録</a>
+        <a href="{{.lineNotifyURL}}" id="notify_url">登録</a>
+
         {{ end }}
-        <h3>ステップ2. 地域登録</h3>
-        地域の登録
-        <form action="" method="post">
-            都道府県：<select name="pref_id">
-            </select>
-            市：<select name="city_id">
-            </select>
-            町：<select name="town_id">
-            </select>
-            <button type="submit">送信</button>
-            </form>
         <br/>
         <a href="/gc_alert/user/logout">ログアウト</a>
     </body>

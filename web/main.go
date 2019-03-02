@@ -31,7 +31,7 @@ func main() {
 	router.GET("/gc_alert/signin", routes.SignIn)
 	router.GET("/gc_alert/signup", routes.SignUp)
 
-	router.GET("/gc_alert/area_search", routes.AreaSearch)
+	router.GET("/gc_alert/search_area", routes.SearchArea)
 
 	router.NoRoute(routes.NoRoute)
 

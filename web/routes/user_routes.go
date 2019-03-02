@@ -3,6 +3,7 @@ package routes
 import (
 	"encoding/json"
 	"gc_alert/web/sessions"
+	"strconv"
 	"strings"
 
 	"log"
@@ -142,6 +143,8 @@ Line Authorizeリクエストのコールバック
 func UserLineAuthorizeCallback(ctx *gin.Context) {
 	code := ctx.PostForm("code")
 	println("code = " + code)
+	state := ctx.PostForm("state")
+	println("state = " + state)
 	error := ctx.PostForm("error")
 	println("error = " + error)
 	errorDescription := ctx.PostForm("error_description")
@@ -159,7 +162,7 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 	var user *model.User
 	user = buffer.(*model.User)
 
-	requestGetAccessToken(user.ID, code)
+	requestGetAccessToken(user.ID, code, state)
 
 	session.Save()
 	println("Session saved.")
@@ -170,7 +173,7 @@ func UserLineAuthorizeCallback(ctx *gin.Context) {
 /*
 ACCESS_TOKEN取得をリクエストします
 */
-func requestGetAccessToken(userID int, code string) error {
+func requestGetAccessToken(userID int, code string, state string) error {
 	var apiurl = "https://notify-bot.line.me/oauth/token"
 
 	values := url.Values{}
@@ -216,7 +219,13 @@ func requestGetAccessToken(userID int, code string) error {
 		println("access_token: " + token.Token)
 
 		// DB登録
-		model.UpdateAccessToken(userID, token.Token)
+		areaID, err := strconv.Atoi(state)
+		if err != nil {
+			println("err: " + err.Error())
+			log.Fatal(err)
+		}
+		println("areaID: " + string(areaID))
+		model.UpdateAccessTokenAndAreaID(userID, token.Token, areaID)
 	}
 	return err
 }

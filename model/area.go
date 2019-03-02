@@ -6,6 +6,7 @@ import "github.com/unokun/gc_alert/db"
 県情報
 */
 type Area struct {
+	ID       string `json:"id"`
 	PrefID   string `json:"pref_id"`
 	PrefName string `json:"pref_name"`
 	CityID   string `json:"city_id"`

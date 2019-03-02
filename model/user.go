@@ -163,6 +163,26 @@ func UpdateAccessToken(id int, accessToken string) error {
 }
 
 /*
+UpdateAccessTokenAndAreaID func(id int, accessToken string, areaID int) (error)
+ユーザーのアクセストークンを更新する
+*/
+func UpdateAccessTokenAndAreaID(id int, accessToken string, areaID int) error {
+	db, err := db.Connect()
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	user := &User{}
+	result := db.First(user, "ID = ?", id)
+	user.AccessToken = accessToken
+	user.AreaID = areaID
+	db.Save(&user)
+
+	return result.Error
+}
+
+/*
 UpdateUser func(user *User) (error)
 ユーザーを更新する
 */
