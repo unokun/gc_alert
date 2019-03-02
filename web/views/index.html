@@ -13,9 +13,9 @@
         <p id="area"></p>
         <h3>ステップ2. LINE登録</h3>
         <p>
-            ゴミ収集日の通知はLINE通知を使って行います。以下の「登録」ボタンを押下してLINE通知登録をお願いします。
+            ゴミ収集日の通知はLINE通知を使って行います。以下の「登録」ボタンを押下してLINEで通知登録をお願いします。
         </p>
-        <a href="{{.lineNotifyURL}}" id="notify_url">登録</a>
+        <a href="{{.lineNotifyURL}}" id="notify_url" onclick="return checkLineNotifyUrl();">登録</a>
 
         {{ end }}
         <br/>
